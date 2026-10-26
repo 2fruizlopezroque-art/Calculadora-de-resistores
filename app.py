@@ -369,7 +369,7 @@ def buscar_combinaciones(objetivo, tolerancia):
 
 st.markdown("""
 <div class="hero-box">
-    <div class="hero-title">OhmStack</div>
+    <div class="hero-title">Calculadora de resistores</div>
     <div class="hero-subtitle">Optimizador de arreglos resistivos</div>
 </div>
 """, unsafe_allow_html=True)
@@ -626,6 +626,6 @@ if st.session_state.resultados is not None:
 
 st.markdown("""
 <div class="minimal-footer">
-    OHMSTACK MINIMAL · VERTICAL STACK LAYOUT
+    Calculadora de resistores
 </div>
 """, unsafe_allow_html=True)
