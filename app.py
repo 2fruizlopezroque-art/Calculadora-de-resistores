@@ -1,4 +1,3 @@
-
 import math
 import streamlit as st
 import streamlit.components.v1 as components
@@ -154,11 +153,9 @@ def fmt(r):
 
 def generar_valores(serie):
     valores = set()
-
     for exponente in range(-3, 9):
         for base in serie:
             valores.add(round(base * 10**exponente, 10))
-
     return sorted(valores)
 
 
@@ -168,6 +165,8 @@ def bandas_color(valor):
         "#f1c40f", "#27ae60", "#2878c8", "#7b3fa1",
         "#777777", "#ffffff"
     ]
+    if valor <= 0:
+        return ["#171717", "#171717", "#171717", "#bfa46b"]
 
     exponente = math.floor(math.log10(valor)) - 1
     cifras = round(valor / (10 ** exponente))
@@ -197,7 +196,6 @@ def dibujar_resistencia(valor):
         f'<span class="band" style="background:{color}"></span>'
         for color in bandas_color(valor)
     )
-
     return f"""
     <div class="resistor-card">
         <div class="wire">
@@ -248,7 +246,6 @@ def buscar_combinaciones(objetivo, tolerancia):
 
         if pos < len(lista):
             candidatos.append(pos)
-
         if pos - 1 >= minimo:
             candidatos.append(pos - 1)
 
@@ -270,7 +267,6 @@ def buscar_combinaciones(objetivo, tolerancia):
 
     # Una resistencia
     idx = cercano(valores, objetivo)
-
     if idx is not None:
         for i in range(max(0, idx - 2), min(n, idx + 3)):
             r = valores[i]
@@ -280,137 +276,86 @@ def buscar_combinaciones(objetivo, tolerancia):
     for i, a in enumerate(valores):
         if a >= objetivo:
             break
-
         idx = cercano(valores, objetivo - a, i)
-
         if idx is not None:
             for j in range(max(i, idx - 1), min(n, idx + 2)):
                 b = valores[j]
-
-                guardar(
-                    a + b, (a, b), "Serie",
-                    formula_serie((a, b))
-                )
+                guardar(a + b, (a, b), "Serie", formula_serie((a, b)))
 
     # Dos resistencias en paralelo
     for ga, a in conductancias:
         restante = objetivo_g - ga
-
         if restante <= 0:
             continue
-
         idx = cercano(gs, restante)
-
         if idx is not None:
             for j in range(max(0, idx - 1), min(len(gs), idx + 2)):
                 gb, b = conductancias[j]
-
-                guardar(
-                    1 / (ga + gb), (a, b), "Paralelo",
-                    formula_paralelo((a, b))
-                )
+                guardar(1 / (ga + gb), (a, b), "Paralelo", formula_paralelo((a, b)))
 
     # Tres resistencias en serie
     for i, a in enumerate(valores):
         if a >= objetivo:
             break
-
         for j in range(i, n):
             b = valores[j]
             restante = objetivo - a - b
-
             if restante <= 0:
                 break
-
             idx = cercano(valores, restante, j)
-
             if idx is not None:
                 for k in range(max(j, idx - 1), min(n, idx + 2)):
                     c = valores[k]
-
-                    guardar(
-                        a + b + c, (a, b, c), "Serie",
-                        formula_serie((a, b, c))
-                    )
+                    guardar(a + b + c, (a, b, c), "Serie", formula_serie((a, b, c)))
 
     # Tres resistencias en paralelo
     for i, (ga, a) in enumerate(conductancias):
         restante1 = objetivo_g - ga
-
         if restante1 <= 0:
             continue
-
         for j in range(i, len(conductancias)):
             gb, b = conductancias[j]
             restante2 = restante1 - gb
-
             if restante2 <= 0:
                 continue
-
             idx = cercano(gs, restante2, j)
-
             if idx is not None:
                 for k in range(max(j, idx - 1), min(len(gs), idx + 2)):
                     gc, c = conductancias[k]
-
-                    guardar(
-                        1 / (ga + gb + gc), (a, b, c), "Paralelo",
-                        formula_paralelo((a, b, c))
-                    )
+                    guardar(1 / (ga + gb + gc), (a, b, c), "Paralelo", formula_paralelo((a, b, c)))
 
     # Una en serie con dos en paralelo: R1 + (R2 || R3)
     for a in valores:
         rama = objetivo - a
-
         if rama <= 0:
             break
-
         rama_g = 1 / rama
-
         for gb, b in conductancias:
             restante = rama_g - gb
-
             if restante <= 0:
                 continue
-
             idx = cercano(gs, restante)
-
             if idx is not None:
                 for k in range(max(0, idx - 1), min(len(gs), idx + 2)):
                     gc, c = conductancias[k]
-
-                    guardar(
-                        a + 1 / (gb + gc), (a, b, c),
-                        "Serie-paralelo",
-                        f"{fmt(a)} + ({fmt(b)} || {fmt(c)})"
-                    )
+                    guardar(a + 1 / (gb + gc), (a, b, c), "Serie-paralelo", f"{fmt(a)} + ({fmt(b)} || {fmt(c)})")
 
     # Una en paralelo con dos en serie: R1 || (R2 + R3)
     for ga, a in conductancias:
         restante_g = objetivo_g - ga
-
         if restante_g <= 0:
             continue
-
         rama = 1 / restante_g
-
         for j, b in enumerate(valores):
             restante_r = rama - b
-
             if restante_r <= 0:
                 continue
-
             idx = cercano(valores, restante_r, j)
-
             if idx is not None:
                 for k in range(max(j, idx - 1), min(n, idx + 2)):
                     c = valores[k]
                     equiv = 1 / (ga + 1 / (b + c))
-
-                    guardar(
-                        equiv, (a, b, c), "Serie-paralelo",
-                        f"{fmt(a)} || ({fmt(b)} + {fmt(c)})"
-                    )
+                    guardar(equiv, (a, b, c), "Serie-paralelo", f"{fmt(a)} || ({fmt(b)} + {fmt(c)})")
 
     return sorted(
         resultados.values(),
@@ -423,12 +368,10 @@ def buscar_combinaciones(objetivo, tolerancia):
 # ==========================================
 
 titulo = "CALCULADORA DE RESISTENCIAS"
-
 colores_titulo = [
     "#635bdb", "#4942b8", "#318fbb", "#319688",
     "#746be8", "#3c6fba", "#4b56a8"
 ]
-
 letras = ""
 
 for i, letra in enumerate(titulo):
@@ -436,18 +379,13 @@ for i, letra in enumerate(titulo):
         letras += "&nbsp;"
     else:
         color = colores_titulo[i % len(colores_titulo)]
-        letras += (
-            f'<span class="letter" style="background:{color}">'
-            f'{letra}</span>'
-        )
+        letras += f'<span class="letter" style="background:{color}">{letra}</span>'
 
 st.markdown(
     f'<div class="title">{letras}</div>'
-    '<div class="subtitle">⚡ Herramienta de análisis de circuitos · '
-    'Encuentra tu combinación ideal</div>',
+    '<div class="subtitle">⚡ Herramienta de análisis de circuitos · Encuentra tu combinación ideal</div>',
     unsafe_allow_html=True
 )
-
 
 # ==========================================
 # DATOS DE ENTRADA
@@ -471,13 +409,8 @@ with c2:
     )
 
 with c3:
-    st.markdown("<div style='height:27px'></div>",
-                unsafe_allow_html=True)
-
-    buscar = st.button(
-        "⚡ Buscar combinaciones",
-        use_container_width=True
-    )
+    st.markdown("<div style='height:27px'></div>", unsafe_allow_html=True)
+    buscar = st.button("⚡ Buscar combinaciones", use_container_width=True)
 
 
 # ==========================================
@@ -489,36 +422,26 @@ if "resultados" not in st.session_state:
 
 if buscar:
     with st.spinner("Buscando las mejores combinaciones..."):
-        st.session_state.resultados = buscar_combinaciones(
-            objetivo, tolerancia
-        )
+        st.session_state.resultados = buscar_combinaciones(objetivo, tolerancia)
         st.session_state.objetivo = objetivo
         st.session_state.tolerancia = tolerancia
 
 if st.session_state.resultados is not None:
     resultados = st.session_state.resultados
-
-    serie_nombre = (
-        "E12" if st.session_state.tolerancia == 10 else "E96"
-    )
+    serie_nombre = "E12" if st.session_state.tolerancia == 10 else "E96"
 
     st.markdown(
-        f'<div class="results-title">✦ TOP 3 DE LAS MEJORES '
-        f'COMBINACIONES · SERIE {serie_nombre}</div>',
+        f'<div class="results-title">✦ TOP 3 DE LAS MEJORES COMBINACIONES · SERIE {serie_nombre}</div>',
         unsafe_allow_html=True
     )
 
     if not resultados:
         st.warning("No se encontraron combinaciones.")
-
     else:
+        clases_posibles = ["first", "second", "third"]
         for i, resultado in enumerate(resultados):
-            clase = ["first", "second", "third"][i]
-
-            etiqueta = (
-                '<div class="best-badge">MEJOR OPCIÓN</div>'
-                if i == 0 else ""
-            )
+            clase = clases_posibles[i] if i < len(clases_posibles) else "third"
+            etiqueta = '<div class="best-badge">MEJOR OPCIÓN</div>' if i == 0 else ""
 
             resistencias_html = "".join(
                 dibujar_resistencia(r)
@@ -528,25 +451,19 @@ if st.session_state.resultados is not None:
             tarjeta = f"""
             <div class="result {clase}">
                 <div class="rank">#{i + 1}</div>
-
                 <div class="result-main">
                     {etiqueta}
                     <div class="result-type">{resultado['tipo']}</div>
                     <div class="formula">{resultado['formula']}</div>
                     <div class="resistor-row">{resistencias_html}</div>
                 </div>
-
                 <div class="value-side">
                     <div class="eq">{fmt(resultado['valor'])}</div>
-                    <div class="err">
-                        Error: {resultado['error']:.4f}%
-                    </div>
+                    <div class="err">Error: {resultado['error']:.4f}%</div>
                 </div>
             </div>
             """
 
-            # Cada tarjeta tiene su propio HTML para que
-            # Streamlit no interfiera con los dibujos.
             components.html(
                 f"""
                 <!DOCTYPE html>
@@ -554,7 +471,6 @@ if st.session_state.resultados is not None:
                 <head>
                 <style>
                     * {{ box-sizing: border-box; }}
-
                     body {{
                         margin: 0;
                         padding: 3px 0;
@@ -562,7 +478,6 @@ if st.session_state.resultados is not None:
                         background: transparent;
                         color: #252840;
                     }}
-
                     .result {{
                         display: flex;
                         align-items: center;
@@ -573,22 +488,9 @@ if st.session_state.resultados is not None:
                         min-height: 150px;
                         width: 100%;
                     }}
-
-                    .first {{
-                        background: #eeecff;
-                        border-color: #756be8;
-                    }}
-
-                    .second {{
-                        background: #e3f4f1;
-                        border-color: #59a99c;
-                    }}
-
-                    .third {{
-                        background: #fff0e4;
-                        border-color: #e7a16b;
-                    }}
-
+                    .first {{ background: #eeecff; border-color: #756be8; }}
+                    .second {{ background: #e3f4f1; border-color: #59a99c; }}
+                    .third {{ background: #fff0e4; border-color: #e7a16b; }}
                     .rank {{
                         min-width: 42px;
                         height: 42px;
@@ -599,16 +501,10 @@ if st.session_state.resultados is not None:
                         color: white;
                         font-weight: bold;
                     }}
-
                     .first .rank {{ background: #635bdb; }}
                     .second .rank {{ background: #319688; }}
                     .third .rank {{ background: #d58243; }}
-
-                    .result-main {{
-                        flex: 1;
-                        min-width: 0;
-                    }}
-
+                    .result-main {{ flex: 1; min-width: 0; }}
                     .result-type {{
                         color: #68718a;
                         font-size: 11px;
@@ -617,7 +513,6 @@ if st.session_state.resultados is not None:
                         letter-spacing: .7px;
                         margin-bottom: 5px;
                     }}
-
                     .formula {{
                         font-family: 'Space Mono', monospace;
                         font-size: 14px;
@@ -625,7 +520,6 @@ if st.session_state.resultados is not None:
                         overflow-wrap: anywhere;
                         color: #252840;
                     }}
-
                     .best-badge {{
                         display: inline-block;
                         background: #635bdb;
@@ -636,14 +530,12 @@ if st.session_state.resultados is not None:
                         font-weight: bold;
                         margin-bottom: 5px;
                     }}
-
                     .resistor-row {{
                         display: flex;
                         flex-wrap: wrap;
                         gap: 8px;
                         margin-top: 10px;
                     }}
-
                     .resistor-card {{
                         width: 105px;
                         background: white;
@@ -652,7 +544,6 @@ if st.session_state.resultados is not None:
                         padding: 6px;
                         text-align: center;
                     }}
-
                     .wire {{
                         height: 35px;
                         display: flex;
@@ -660,7 +551,6 @@ if st.session_state.resultados is not None:
                         justify-content: center;
                         position: relative;
                     }}
-
                     .wire:before {{
                         content: "";
                         position: absolute;
@@ -668,7 +558,6 @@ if st.session_state.resultados is not None:
                         height: 3px;
                         background: #a0a5af;
                     }}
-
                     .resistor-body {{
                         position: relative;
                         z-index: 1;
@@ -681,33 +570,28 @@ if st.session_state.resultados is not None:
                         justify-content: space-evenly;
                         overflow: hidden;
                     }}
-
                     .band {{
                         width: 6px;
                         height: 100%;
                         flex-shrink: 0;
                     }}
-
                     .res-value {{
                         font-family: 'Space Mono', monospace;
                         font-size: 12px;
                         font-weight: bold;
                         margin-top: 4px;
                     }}
-
                     .value-side {{
                         min-width: 115px;
                         text-align: right;
                         font-family: 'Space Mono', monospace;
                     }}
-
                     .eq {{
                         font-size: 17px;
                         font-weight: bold;
                         overflow-wrap: anywhere;
                         color: #252840;
                     }}
-
                     .err {{
                         display: inline-block;
                         background: #188d65;
@@ -718,13 +602,9 @@ if st.session_state.resultados is not None:
                         font-weight: bold;
                         margin-top: 6px;
                     }}
-
                     @media (max-width: 600px) {{
                         .result {{ flex-wrap: wrap; }}
-                        .value-side {{
-                            width: 100%;
-                            text-align: left;
-                        }}
+                        .value-side {{ width: 100%; text-align: left; }}
                     }}
                 </style>
                 </head>
@@ -743,24 +623,18 @@ if st.session_state.resultados is not None:
 st.markdown("""
 <div class="info-box">
     <h3>⚙ ¿Cómo funciona?</h3>
-
     Introduce el valor de resistencia deseado y selecciona una tolerancia.
     El programa utiliza la serie comercial E12 para 10% y E96 para 1%.
-
     <br><br>
-
     Busca combinaciones de una, dos y tres resistencias conectadas en
     serie, paralelo y las dos configuraciones mixtas serie-paralelo.
     Después ordena los resultados por su error porcentual y muestra
     las tres opciones encontradas más cercanas al valor solicitado.
-
     <br><br>
-
     <b>Fórmulas utilizadas</b><br>
     Serie: R = R₁ + R₂ + R₃<br>
     Paralelo: 1/R = 1/R₁ + 1/R₂ + 1/R₃
 </div>
-
 <div class="footer">
     CALCULADORA DE RESISTENCIAS · PYTHON + STREAMLIT
 </div>
