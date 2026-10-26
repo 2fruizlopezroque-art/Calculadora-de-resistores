@@ -1,6 +1,7 @@
-import streamlit.components.v1 as components
+
 import math
 import streamlit as st
+import streamlit.components.v1 as components
 from bisect import bisect_left
 
 # ==========================================
@@ -26,7 +27,7 @@ E96 = [
 ]
 
 # ==========================================
-# CONFIGURACIÓN DE LA PÁGINA
+# CONFIGURACIÓN DE STREAMLIT
 # ==========================================
 
 st.set_page_config(
@@ -36,220 +37,111 @@ st.set_page_config(
 )
 
 # ==========================================
-# DISEÑO CSS
+# ESTILOS DE LA INTERFAZ
 # ==========================================
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
 .stApp {
-    background: linear-gradient(120deg, #faf8ef, #eef6ff);
+    background: linear-gradient(135deg, #f3f5fa, #e9edf5);
+    color: #252840;
 }
+
 .block-container {
     max-width: 1450px;
     padding-top: 2rem;
+    padding-bottom: 3rem;
 }
-h1, h2, h3, p, label {
-    font-family: Arial, sans-serif;
+
+h1, h2, h3, p, label, div, span {
+    font-family: 'DM Sans', sans-serif;
 }
+
 .title {
     text-align: center;
     font-size: clamp(19px, 3vw, 36px);
     font-weight: 900;
     margin-bottom: 8px;
+    line-height: 1.5;
 }
+
 .letter {
     display: inline-block;
     color: white;
     padding: 3px 5px;
     margin: 1px;
+    border-radius: 4px;
 }
+
 .subtitle {
     text-align: center;
-    color: #64748b;
+    color: #68718a;
     margin-bottom: 30px;
+    font-size: 15px;
 }
+
 .stButton > button {
-    background: #ff1010;
+    background: linear-gradient(135deg, #635bdb, #4942b8);
     color: white;
     border: none;
     height: 49px;
     border-radius: 12px;
-    font-weight: bold;
+    font-weight: 800;
     width: 100%;
+    box-shadow: 0 5px 14px rgba(80, 72, 190, 0.22);
+    transition: all 0.2s ease;
 }
+
 .stButton > button:hover {
-    background: #d90000;
+    background: linear-gradient(135deg, #5149c6, #38319f);
     color: white;
+    transform: translateY(-2px);
 }
+
 div[data-baseweb="input"] > div,
 div[data-baseweb="select"] > div {
     border-radius: 10px;
+    border-color: #c9cfdf;
 }
+
 .results-title {
     text-align: center;
-    color: #168b49;
+    color: #4942b8;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 800;
     margin: 30px 0 20px;
 }
-.result {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 18px;
-    border-radius: 14px;
-    border: 2px solid;
-    margin-bottom: 12px;
-    min-height: 145px;
-}
-.first {
-    background: #fff0b6;
-    border-color: #f2a000;
-}
-.second {
-    background: #d9e4f2;
-    border-color: #9ba9bc;
-}
-.third {
-    background: #f2e8de;
-    border-color: #b95000;
-}
-.rank {
-    min-width: 43px;
-    height: 43px;
-    border-radius: 50%;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 17px;
-}
-.first .rank { background: #d99500; }
-.second .rank { background: #6f7d91; }
-.third .rank { background: #98430a; }
-.result-main {
-    flex: 1;
-    min-width: 0;
-}
-.result-type {
-    color: #566173;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: bold;
-}
-.formula {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 15px;
-    font-weight: bold;
-    color: #171923;
-    overflow-wrap: anywhere;
-    margin-top: 5px;
-}
-.best-badge {
-    display: inline-block;
-    background: #d99500;
-    color: white;
-    border-radius: 4px;
-    padding: 4px 9px;
-    font-size: 10px;
-    font-weight: bold;
-    margin-bottom: 6px;
-}
-.resistor-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-}
-.resistor-card {
-    width: 112px;
+
+.info-box {
     background: white;
-    border-radius: 9px;
-    padding: 7px 5px;
-    text-align: center;
-    box-shadow: 0 2px 5px #00000012;
-}
-.wire {
-    position: relative;
-    height: 35px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.wire:before {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 3px;
-    background: #a0a5af;
-    left: 0;
-    top: 16px;
-}
-.resistor-body {
-    position: relative;
-    z-index: 1;
-    width: 70px;
-    height: 24px;
-    border: 1px solid #b5a47f;
-    border-radius: 5px;
-    background: #ead7ae;
-    display: flex;
-    justify-content: space-evenly;
-    overflow: hidden;
-}
-.band {
-    height: 100%;
-    width: 6px;
-}
-.res-value {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 12px;
-    font-weight: bold;
-    margin-top: 4px;
-}
-.value-side {
-    min-width: 130px;
-    text-align: right;
-    font-family: 'Roboto Mono', monospace;
-}
-.eq {
-    font-size: 18px;
-    font-weight: bold;
-    color: #171923;
-}
-.err {
-    display: inline-block;
-    background: #188d48;
-    color: white;
-    border-radius: 6px;
-    padding: 5px 8px;
-    font-size: 12px;
-    font-weight: bold;
-    margin-top: 6px;
-}
-.info {
-    background: white;
-    border: 1px solid #e1e5ec;
-    border-radius: 12px;
-    padding: 20px;
-    margin-top: 25px;
-    color: #566173;
+    border: 1px solid #dfe4ef;
+    border-radius: 15px;
+    padding: 22px;
+    margin-top: 28px;
+    color: #59647b;
     line-height: 1.7;
+    box-shadow: 0 4px 16px rgba(36, 48, 90, .04);
 }
-@media (max-width: 700px) {
-    .result { flex-wrap: wrap; }
-    .value-side { text-align: left; width: 100%; }
+
+.info-box h3 {
+    color: #4942b8;
+    margin-top: 0;
+}
+
+.footer {
+    color: #8a91a5;
+    text-align: center;
+    font-size: 12px;
+    padding-top: 24px;
 }
 </style>
 """, unsafe_allow_html=True)
 
 
 # ==========================================
-# FUNCIONES PARA RESISTENCIAS
+# FORMATO DE RESISTENCIAS
 # ==========================================
 
 def fmt(r):
@@ -257,51 +149,28 @@ def fmt(r):
         return f"{r / 1_000_000:.4g} MΩ"
     if r >= 1000:
         return f"{r / 1000:.4g} kΩ"
-    if r >= 1:
-        return f"{r:.4g} Ω"
     return f"{r:.4g} Ω"
 
 
 def generar_valores(serie):
     valores = set()
+
     for exponente in range(-3, 9):
         for base in serie:
             valores.add(round(base * 10**exponente, 10))
+
     return sorted(valores)
 
 
-def cercano(valores, objetivo, minimo=0):
-    """Busca el valor comercial más próximo al objetivo."""
-    if objetivo <= 0:
-        return None
-
-    pos = bisect_left(valores, objetivo, lo=minimo)
-    candidatos = []
-
-    if pos < len(valores):
-        candidatos.append(pos)
-    if pos > minimo:
-        candidatos.append(pos - 1)
-
-    if not candidatos:
-        return None
-
-    return min(candidatos, key=lambda i: abs(valores[i] - objetivo))
-
-
 def bandas_color(valor):
-    """Calcula bandas aproximadas para representar el valor."""
     colores = [
-        "#111111", "#854b26", "#e53935", "#f57c00",
+        "#171717", "#854b26", "#e53935", "#f57c00",
         "#f1c40f", "#27ae60", "#2878c8", "#7b3fa1",
         "#777777", "#ffffff"
     ]
 
-    if valor <= 0:
-        return ["#111111", "#111111", "#854b26", "#bfa46b"]
-
     exponente = math.floor(math.log10(valor)) - 1
-    cifras = round(valor / (10**exponente))
+    cifras = round(valor / (10 ** exponente))
 
     if cifras >= 100:
         cifras //= 10
@@ -311,14 +180,16 @@ def bandas_color(valor):
     d2 = max(0, min(9, cifras % 10))
 
     if exponente < 0:
-        mult = "#bfa46b"
+        multiplicador = "#bfc3c7"
     elif exponente <= 9:
-        mult = colores[exponente]
+        multiplicador = colores[exponente]
     else:
-        mult = "#ffffff"
+        multiplicador = "#ffffff"
 
-    # Banda de tolerancia dorada para 5%, plateada para 10%.
-    return [colores[d1], colores[d2], mult, "#bfa46b"]
+    return [
+        colores[d1], colores[d2],
+        multiplicador, "#bfa46b"
+    ]
 
 
 def dibujar_resistencia(valor):
@@ -326,26 +197,29 @@ def dibujar_resistencia(valor):
         f'<span class="band" style="background:{color}"></span>'
         for color in bandas_color(valor)
     )
-    return (
-        '<div class="resistor-card">'
-        '<div class="wire"><div class="resistor-body">'
-        + bandas +
-        '</div></div><div class="res-value">'
-        + fmt(valor) +
-        '</div></div>'
-    )
+
+    return f"""
+    <div class="resistor-card">
+        <div class="wire">
+            <div class="resistor-body">{bandas}</div>
+        </div>
+        <div class="res-value">{fmt(valor)}</div>
+    </div>
+    """
 
 
 # ==========================================
-# BUSCAR LAS MEJORES COMBINACIONES
+# BÚSQUEDA DE COMBINACIONES
 # ==========================================
 
 def buscar_combinaciones(objetivo, tolerancia):
     serie = E12 if tolerancia == 10 else E96
     valores = generar_valores(serie)
+
     conductancias = sorted((1 / r, r) for r in valores)
     gs = [g for g, r in conductancias]
     objetivo_g = 1 / objetivo
+
     resultados = {}
 
     def guardar(equiv, resistencias, tipo, formula):
@@ -365,100 +239,198 @@ def buscar_combinaciones(objetivo, tolerancia):
                 "error": error
             }
 
+    def cercano(lista, objetivo_local, minimo=0):
+        if objetivo_local <= 0 or minimo >= len(lista):
+            return None
+
+        pos = bisect_left(lista, objetivo_local, lo=minimo)
+        candidatos = []
+
+        if pos < len(lista):
+            candidatos.append(pos)
+
+        if pos - 1 >= minimo:
+            candidatos.append(pos - 1)
+
+        if not candidatos:
+            return None
+
+        return min(
+            candidatos,
+            key=lambda i: abs(lista[i] - objetivo_local)
+        )
+
     def formula_serie(rs):
         return " + ".join(fmt(r) for r in rs)
 
     def formula_paralelo(rs):
         return " || ".join(fmt(r) for r in rs)
 
-    def cercano_g(objetivo_g_local, minimo=0):
-        return cercano(gs, objetivo_g_local, minimo)
-
     n = len(valores)
 
     # Una resistencia
-    for a in valores:
-        guardar(a, (a,), "Una resistencia", fmt(a))
+    idx = cercano(valores, objetivo)
+
+    if idx is not None:
+        for i in range(max(0, idx - 2), min(n, idx + 3)):
+            r = valores[i]
+            guardar(r, (r,), "Una resistencia", fmt(r))
 
     # Dos resistencias en serie
     for i, a in enumerate(valores):
-        b_index = cercano(valores, objetivo - a, i)
-        if b_index is not None:
-            b = valores[b_index]
-            guardar(a + b, (a, b), "Serie", formula_serie((a, b)))
+        if a >= objetivo:
+            break
+
+        idx = cercano(valores, objetivo - a, i)
+
+        if idx is not None:
+            for j in range(max(i, idx - 1), min(n, idx + 2)):
+                b = valores[j]
+
+                guardar(
+                    a + b, (a, b), "Serie",
+                    formula_serie((a, b))
+                )
 
     # Dos resistencias en paralelo
     for ga, a in conductancias:
-        idx = cercano_g(objetivo_g - ga)
-        if idx is not None:
-            gb, b = conductancias[idx]
-            guardar(1 / (ga + gb), (a, b), "Paralelo",
-                    formula_paralelo((a, b)))
+        restante = objetivo_g - ga
 
-    # Tres resistencias en serie
-    for i, a in enumerate(valores):
-        for j in range(i, n):
-            b = valores[j]
-            idx = cercano(valores, objetivo - a - b, j)
-            if idx is not None:
-                c = valores[idx]
-                guardar(a + b + c, (a, b, c), "Serie",
-                        formula_serie((a, b, c)))
-
-    # Tres resistencias en paralelo
-    for i, (ga, a) in enumerate(conductancias):
-        for gb, b in conductancias:
-            idx = cercano_g(objetivo_g - ga - gb)
-            if idx is not None:
-                gc, c = conductancias[idx]
-                guardar(1 / (ga + gb + gc), (a, b, c), "Paralelo",
-                        formula_paralelo((a, b, c)))
-
-    # Una en serie con dos en paralelo: a + (b || c)
-    for a in valores:
-        restante = objetivo - a
         if restante <= 0:
             continue
 
-        g_restante = 1 / restante
-        for gb, b in conductancias:
-            idx = cercano_g(g_restante - gb)
-            if idx is not None:
-                gc, c = conductancias[idx]
-                paralelo = 1 / (gb + gc)
-                guardar(a + paralelo, (a, b, c), "Serie-paralelo",
-                        f"{fmt(a)} + ({fmt(b)} || {fmt(c)})")
+        idx = cercano(gs, restante)
 
-    # Una en paralelo con dos en serie: a || (b + c)
-    for ga, a in conductancias:
-        g_restante = objetivo_g - ga
-        if g_restante <= 0:
+        if idx is not None:
+            for j in range(max(0, idx - 1), min(len(gs), idx + 2)):
+                gb, b = conductancias[j]
+
+                guardar(
+                    1 / (ga + gb), (a, b), "Paralelo",
+                    formula_paralelo((a, b))
+                )
+
+    # Tres resistencias en serie
+    for i, a in enumerate(valores):
+        if a >= objetivo:
+            break
+
+        for j in range(i, n):
+            b = valores[j]
+            restante = objetivo - a - b
+
+            if restante <= 0:
+                break
+
+            idx = cercano(valores, restante, j)
+
+            if idx is not None:
+                for k in range(max(j, idx - 1), min(n, idx + 2)):
+                    c = valores[k]
+
+                    guardar(
+                        a + b + c, (a, b, c), "Serie",
+                        formula_serie((a, b, c))
+                    )
+
+    # Tres resistencias en paralelo
+    for i, (ga, a) in enumerate(conductancias):
+        restante1 = objetivo_g - ga
+
+        if restante1 <= 0:
             continue
 
-        rama = 1 / g_restante
-        for j, b in enumerate(valores):
-            idx = cercano(valores, rama - b, j)
-            if idx is not None:
-                c = valores[idx]
-                equivalente = 1 / (ga + 1 / (b + c))
-                guardar(equivalente, (a, b, c), "Serie-paralelo",
-                        f"{fmt(a)} || ({fmt(b)} + {fmt(c)})")
+        for j in range(i, len(conductancias)):
+            gb, b = conductancias[j]
+            restante2 = restante1 - gb
 
-    ordenados = sorted(resultados.values(), key=lambda x: x["error"])
-    return ordenados[:3]
+            if restante2 <= 0:
+                continue
+
+            idx = cercano(gs, restante2, j)
+
+            if idx is not None:
+                for k in range(max(j, idx - 1), min(len(gs), idx + 2)):
+                    gc, c = conductancias[k]
+
+                    guardar(
+                        1 / (ga + gb + gc), (a, b, c), "Paralelo",
+                        formula_paralelo((a, b, c))
+                    )
+
+    # Una en serie con dos en paralelo: R1 + (R2 || R3)
+    for a in valores:
+        rama = objetivo - a
+
+        if rama <= 0:
+            break
+
+        rama_g = 1 / rama
+
+        for gb, b in conductancias:
+            restante = rama_g - gb
+
+            if restante <= 0:
+                continue
+
+            idx = cercano(gs, restante)
+
+            if idx is not None:
+                for k in range(max(0, idx - 1), min(len(gs), idx + 2)):
+                    gc, c = conductancias[k]
+
+                    guardar(
+                        a + 1 / (gb + gc), (a, b, c),
+                        "Serie-paralelo",
+                        f"{fmt(a)} + ({fmt(b)} || {fmt(c)})"
+                    )
+
+    # Una en paralelo con dos en serie: R1 || (R2 + R3)
+    for ga, a in conductancias:
+        restante_g = objetivo_g - ga
+
+        if restante_g <= 0:
+            continue
+
+        rama = 1 / restante_g
+
+        for j, b in enumerate(valores):
+            restante_r = rama - b
+
+            if restante_r <= 0:
+                continue
+
+            idx = cercano(valores, restante_r, j)
+
+            if idx is not None:
+                for k in range(max(j, idx - 1), min(n, idx + 2)):
+                    c = valores[k]
+                    equiv = 1 / (ga + 1 / (b + c))
+
+                    guardar(
+                        equiv, (a, b, c), "Serie-paralelo",
+                        f"{fmt(a)} || ({fmt(b)} + {fmt(c)})"
+                    )
+
+    return sorted(
+        resultados.values(),
+        key=lambda x: x["error"]
+    )[:3]
 
 
 # ==========================================
-# INTERFAZ
+# TÍTULO
 # ==========================================
 
 titulo = "CALCULADORA DE RESISTENCIAS"
+
 colores_titulo = [
-    "#e74c3c", "#e67e22", "#f1c40f", "#27ae60",
-    "#16a085", "#3498db", "#2980b9"
+    "#635bdb", "#4942b8", "#318fbb", "#319688",
+    "#746be8", "#3c6fba", "#4b56a8"
 ]
 
 letras = ""
+
 for i, letra in enumerate(titulo):
     if letra == " ":
         letras += "&nbsp;"
@@ -471,10 +443,15 @@ for i, letra in enumerate(titulo):
 
 st.markdown(
     f'<div class="title">{letras}</div>'
-    '<div class="subtitle">⚡ Encuentra la combinación más cercana '
-    'con resistencias comerciales :D</div>',
+    '<div class="subtitle">⚡ Herramienta de análisis de circuitos · '
+    'Encuentra tu combinación ideal</div>',
     unsafe_allow_html=True
 )
+
+
+# ==========================================
+# DATOS DE ENTRADA
+# ==========================================
 
 c1, c2, c3 = st.columns([1, 1, 1.35])
 
@@ -488,7 +465,7 @@ with c1:
 
 with c2:
     tolerancia = st.selectbox(
-        "TOLERANCIA DESEADA (%)",
+        "TOLERANCIA DESEADA",
         [10, 1],
         format_func=lambda x: f"{x}%"
     )
@@ -496,8 +473,16 @@ with c2:
 with c3:
     st.markdown("<div style='height:27px'></div>",
                 unsafe_allow_html=True)
-    buscar = st.button("🔎 Buscar combinaciones",
-                       use_container_width=True)
+
+    buscar = st.button(
+        "⚡ Buscar combinaciones",
+        use_container_width=True
+    )
+
+
+# ==========================================
+# RESULTADOS
+# ==========================================
 
 if "resultados" not in st.session_state:
     st.session_state.resultados = None
@@ -512,21 +497,24 @@ if buscar:
 
 if st.session_state.resultados is not None:
     resultados = st.session_state.resultados
+
     serie_nombre = (
         "E12" if st.session_state.tolerancia == 10 else "E96"
     )
 
     st.markdown(
-        f'<div class="results-title">✅ TOP 3 DE LAS MEJORES '
+        f'<div class="results-title">✦ TOP 3 DE LAS MEJORES '
         f'COMBINACIONES · SERIE {serie_nombre}</div>',
         unsafe_allow_html=True
     )
 
     if not resultados:
         st.warning("No se encontraron combinaciones.")
+
     else:
         for i, resultado in enumerate(resultados):
             clase = ["first", "second", "third"][i]
+
             etiqueta = (
                 '<div class="best-badge">MEJOR OPCIÓN</div>'
                 if i == 0 else ""
@@ -540,20 +528,25 @@ if st.session_state.resultados is not None:
             tarjeta = f"""
             <div class="result {clase}">
                 <div class="rank">#{i + 1}</div>
+
                 <div class="result-main">
                     {etiqueta}
                     <div class="result-type">{resultado['tipo']}</div>
                     <div class="formula">{resultado['formula']}</div>
                     <div class="resistor-row">{resistencias_html}</div>
                 </div>
+
                 <div class="value-side">
                     <div class="eq">{fmt(resultado['valor'])}</div>
-                    <div class="err">Error: {resultado['error']:.4f}%</div>
+                    <div class="err">
+                        Error: {resultado['error']:.4f}%
+                    </div>
                 </div>
             </div>
             """
 
-            
+            # Cada tarjeta tiene su propio HTML para que
+            # Streamlit no interfiera con los dibujos.
             components.html(
                 f"""
                 <!DOCTYPE html>
@@ -561,34 +554,41 @@ if st.session_state.resultados is not None:
                 <head>
                 <style>
                     * {{ box-sizing: border-box; }}
+
                     body {{
                         margin: 0;
                         padding: 3px 0;
-                        font-family: Arial, sans-serif;
+                        font-family: 'DM Sans', Arial, sans-serif;
                         background: transparent;
+                        color: #252840;
                     }}
+
                     .result {{
                         display: flex;
                         align-items: center;
                         gap: 12px;
                         padding: 14px;
-                        border-radius: 14px;
+                        border-radius: 15px;
                         border: 2px solid;
                         min-height: 150px;
                         width: 100%;
                     }}
+
                     .first {{
-                        background: #fff0b6;
-                        border-color: #f2a000;
+                        background: #eeecff;
+                        border-color: #756be8;
                     }}
+
                     .second {{
-                        background: #d9e4f2;
-                        border-color: #9ba9bc;
+                        background: #e3f4f1;
+                        border-color: #59a99c;
                     }}
+
                     .third {{
-                        background: #f2e8de;
-                        border-color: #b95000;
+                        background: #fff0e4;
+                        border-color: #e7a16b;
                     }}
+
                     .rank {{
                         min-width: 42px;
                         height: 42px;
@@ -599,49 +599,60 @@ if st.session_state.resultados is not None:
                         color: white;
                         font-weight: bold;
                     }}
-                    .first .rank {{ background: #d99500; }}
-                    .second .rank {{ background: #6f7d91; }}
-                    .third .rank {{ background: #98430a; }}
+
+                    .first .rank {{ background: #635bdb; }}
+                    .second .rank {{ background: #319688; }}
+                    .third .rank {{ background: #d58243; }}
+
                     .result-main {{
                         flex: 1;
                         min-width: 0;
                     }}
+
                     .result-type {{
-                        color: #566173;
+                        color: #68718a;
                         font-size: 11px;
                         font-weight: bold;
                         text-transform: uppercase;
+                        letter-spacing: .7px;
                         margin-bottom: 5px;
                     }}
+
                     .formula {{
-                        font-family: monospace;
+                        font-family: 'Space Mono', monospace;
                         font-size: 14px;
                         font-weight: bold;
                         overflow-wrap: anywhere;
+                        color: #252840;
                     }}
+
                     .best-badge {{
                         display: inline-block;
-                        background: #d99500;
+                        background: #635bdb;
                         color: white;
-                        border-radius: 4px;
+                        border-radius: 5px;
                         padding: 4px 8px;
                         font-size: 10px;
                         font-weight: bold;
                         margin-bottom: 5px;
                     }}
+
                     .resistor-row {{
                         display: flex;
                         flex-wrap: wrap;
                         gap: 8px;
                         margin-top: 10px;
                     }}
+
                     .resistor-card {{
                         width: 105px;
                         background: white;
+                        border: 1px solid #e0e5ef;
                         border-radius: 8px;
                         padding: 6px;
                         text-align: center;
                     }}
+
                     .wire {{
                         height: 35px;
                         display: flex;
@@ -649,6 +660,7 @@ if st.session_state.resultados is not None:
                         justify-content: center;
                         position: relative;
                     }}
+
                     .wire:before {{
                         content: "";
                         position: absolute;
@@ -656,6 +668,7 @@ if st.session_state.resultados is not None:
                         height: 3px;
                         background: #a0a5af;
                     }}
+
                     .resistor-body {{
                         position: relative;
                         z-index: 1;
@@ -668,30 +681,36 @@ if st.session_state.resultados is not None:
                         justify-content: space-evenly;
                         overflow: hidden;
                     }}
+
                     .band {{
                         width: 6px;
                         height: 100%;
                         flex-shrink: 0;
                     }}
+
                     .res-value {{
-                        font-family: monospace;
+                        font-family: 'Space Mono', monospace;
                         font-size: 12px;
                         font-weight: bold;
                         margin-top: 4px;
                     }}
+
                     .value-side {{
                         min-width: 115px;
                         text-align: right;
-                        font-family: monospace;
+                        font-family: 'Space Mono', monospace;
                     }}
+
                     .eq {{
                         font-size: 17px;
                         font-weight: bold;
                         overflow-wrap: anywhere;
+                        color: #252840;
                     }}
+
                     .err {{
                         display: inline-block;
-                        background: #188d48;
+                        background: #188d65;
                         color: white;
                         border-radius: 6px;
                         padding: 5px 7px;
@@ -699,6 +718,7 @@ if st.session_state.resultados is not None:
                         font-weight: bold;
                         margin-top: 6px;
                     }}
+
                     @media (max-width: 600px) {{
                         .result {{ flex-wrap: wrap; }}
                         .value-side {{
@@ -708,28 +728,40 @@ if st.session_state.resultados is not None:
                     }}
                 </style>
                 </head>
-                <body>
-                    {tarjeta}
-                </body>
+                <body>{tarjeta}</body>
                 </html>
                 """,
                 height=205,
                 scrolling=False
             )
 
+
+# ==========================================
+# INFORMACIÓN
+# ==========================================
+
 st.markdown("""
-<div class="info">
-    <h3>¿Cómo funciona?</h3>
-    El programa recibe una resistencia deseada y una tolerancia comercial.
-    Para 10% usa la serie E12; para 1% usa E96.
+<div class="info-box">
+    <h3>⚙ ¿Cómo funciona?</h3>
+
+    Introduce el valor de resistencia deseado y selecciona una tolerancia.
+    El programa utiliza la serie comercial E12 para 10% y E96 para 1%.
+
     <br><br>
-    Prueba combinaciones de una, dos y tres resistencias conectadas en
-    serie, en paralelo y en configuraciones mixtas serie-paralelo.
-    Después ordena los resultados por el error porcentual y muestra
-    las tres combinaciones más cercanas al valor solicitado.
+
+    Busca combinaciones de una, dos y tres resistencias conectadas en
+    serie, paralelo y las dos configuraciones mixtas serie-paralelo.
+    Después ordena los resultados por su error porcentual y muestra
+    las tres opciones encontradas más cercanas al valor solicitado.
+
     <br><br>
-    <b>Fórmulas utilizadas:</b><br>
+
+    <b>Fórmulas utilizadas</b><br>
     Serie: R = R₁ + R₂ + R₃<br>
     Paralelo: 1/R = 1/R₁ + 1/R₂ + 1/R₃
+</div>
+
+<div class="footer">
+    CALCULADORA DE RESISTENCIAS · PYTHON + STREAMLIT
 </div>
 """, unsafe_allow_html=True)
