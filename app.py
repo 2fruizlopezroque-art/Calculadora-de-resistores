@@ -366,7 +366,7 @@ def buscar_combinaciones(objetivo, tolerancia):
 
 st.markdown("""
 <div class="minimal-header">
-    <div class="minimal-title">OhmMatcher</div>
+    <div class="minimal-title">Calculadora de resistores</div>
     <div class="minimal-subtitle">Calculadora analítica de arreglos de resistencias</div>
 </div>
 """, unsafe_allow_html=True)
