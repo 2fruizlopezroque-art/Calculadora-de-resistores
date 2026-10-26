@@ -1,4 +1,4 @@
-
+import streamlit.components.v1 as components
 import math
 import streamlit as st
 from bisect import bisect_left
@@ -553,7 +553,169 @@ if st.session_state.resultados is not None:
             </div>
             """
 
-            st.markdown(tarjeta, unsafe_allow_html=True)
+            
+            components.html(
+                f"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                <style>
+                    * {{ box-sizing: border-box; }}
+                    body {{
+                        margin: 0;
+                        padding: 3px 0;
+                        font-family: Arial, sans-serif;
+                        background: transparent;
+                    }}
+                    .result {{
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        padding: 14px;
+                        border-radius: 14px;
+                        border: 2px solid;
+                        min-height: 150px;
+                        width: 100%;
+                    }}
+                    .first {{
+                        background: #fff0b6;
+                        border-color: #f2a000;
+                    }}
+                    .second {{
+                        background: #d9e4f2;
+                        border-color: #9ba9bc;
+                    }}
+                    .third {{
+                        background: #f2e8de;
+                        border-color: #b95000;
+                    }}
+                    .rank {{
+                        min-width: 42px;
+                        height: 42px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-weight: bold;
+                    }}
+                    .first .rank {{ background: #d99500; }}
+                    .second .rank {{ background: #6f7d91; }}
+                    .third .rank {{ background: #98430a; }}
+                    .result-main {{
+                        flex: 1;
+                        min-width: 0;
+                    }}
+                    .result-type {{
+                        color: #566173;
+                        font-size: 11px;
+                        font-weight: bold;
+                        text-transform: uppercase;
+                        margin-bottom: 5px;
+                    }}
+                    .formula {{
+                        font-family: monospace;
+                        font-size: 14px;
+                        font-weight: bold;
+                        overflow-wrap: anywhere;
+                    }}
+                    .best-badge {{
+                        display: inline-block;
+                        background: #d99500;
+                        color: white;
+                        border-radius: 4px;
+                        padding: 4px 8px;
+                        font-size: 10px;
+                        font-weight: bold;
+                        margin-bottom: 5px;
+                    }}
+                    .resistor-row {{
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 8px;
+                        margin-top: 10px;
+                    }}
+                    .resistor-card {{
+                        width: 105px;
+                        background: white;
+                        border-radius: 8px;
+                        padding: 6px;
+                        text-align: center;
+                    }}
+                    .wire {{
+                        height: 35px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        position: relative;
+                    }}
+                    .wire:before {{
+                        content: "";
+                        position: absolute;
+                        width: 100%;
+                        height: 3px;
+                        background: #a0a5af;
+                    }}
+                    .resistor-body {{
+                        position: relative;
+                        z-index: 1;
+                        width: 70px;
+                        height: 24px;
+                        border: 1px solid #b5a47f;
+                        border-radius: 5px;
+                        background: #ead7ae;
+                        display: flex;
+                        justify-content: space-evenly;
+                        overflow: hidden;
+                    }}
+                    .band {{
+                        width: 6px;
+                        height: 100%;
+                        flex-shrink: 0;
+                    }}
+                    .res-value {{
+                        font-family: monospace;
+                        font-size: 12px;
+                        font-weight: bold;
+                        margin-top: 4px;
+                    }}
+                    .value-side {{
+                        min-width: 115px;
+                        text-align: right;
+                        font-family: monospace;
+                    }}
+                    .eq {{
+                        font-size: 17px;
+                        font-weight: bold;
+                        overflow-wrap: anywhere;
+                    }}
+                    .err {{
+                        display: inline-block;
+                        background: #188d48;
+                        color: white;
+                        border-radius: 6px;
+                        padding: 5px 7px;
+                        font-size: 11px;
+                        font-weight: bold;
+                        margin-top: 6px;
+                    }}
+                    @media (max-width: 600px) {{
+                        .result {{ flex-wrap: wrap; }}
+                        .value-side {{
+                            width: 100%;
+                            text-align: left;
+                        }}
+                    }}
+                </style>
+                </head>
+                <body>
+                    {tarjeta}
+                </body>
+                </html>
+                """,
+                height=205,
+                scrolling=False
+            )
 
 st.markdown("""
 <div class="info">
