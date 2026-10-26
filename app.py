@@ -29,64 +29,68 @@ E96 = [
 # ==========================================
 
 st.set_page_config(
-    page_title="OhmMinimal",
+    page_title="OhmStack Minimal",
     page_icon="⚡",
-    layout="wide"
+    layout="centered"
 )
 
 # ==========================================
-# ESTILOS MINIMALISTAS (NEGRO / MORADO SUTIL)
+# ESTILOS MINIMALISTAS Y VERTICALES
 # ==========================================
 
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* Fondo negro absoluto y limpio */
 .stApp {
-    background-color: #050507;
+    background-color: #030305;
     color: #e2e8f0;
 }
 
 .block-container {
-    max-width: 1200px;
-    padding-top: 2rem;
-    padding-bottom: 4rem;
+    max-width: 780px;
+    padding-top: 2.5rem;
+    padding-bottom: 5rem;
 }
 
 h1, h2, h3, p, label, div, span {
     font-family: 'Inter', sans-serif;
 }
 
-/* Header Minimalista */
-.minimal-header {
-    text-align: left;
-    border-bottom: 1px solid #141419;
-    padding-bottom: 20px;
-    margin-bottom: 30px;
+/* Header Vertical Centrado */
+.hero-box {
+    text-align: center;
+    margin-bottom: 35px;
 }
 
-.minimal-title {
-    font-size: 26px;
+.hero-title {
+    font-size: 28px;
     font-weight: 700;
-    letter-spacing: -0.5px;
     color: #ffffff;
-    margin: 0;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
 }
 
-.minimal-subtitle {
+.hero-subtitle {
     font-size: 13px;
     color: #71717a;
-    margin-top: 4px;
 }
 
-/* Contenedor de Inputs Estilizados */
+/* Panel de Control Vertical */
+.control-panel {
+    background: #07070a;
+    border: 1px solid #181824;
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
 div[data-baseweb="input"] > div,
 div[data-baseweb="select"] > div {
-    background-color: #0b0b0f !important;
-    border: 1px solid #1f1f2e !important;
+    background-color: #0b0b10 !important;
+    border: 1px solid #222232 !important;
     border-radius: 8px !important;
-    color: #f8fafc !important;
 }
 
 div[data-baseweb="input"] input {
@@ -94,43 +98,42 @@ div[data-baseweb="input"] input {
     font-family: 'JetBrains Mono', monospace;
 }
 
-/* Botón Minimalista con toque morado sutil */
+/* Botón Minimalista con acento violeta */
 .stButton > button {
-    background-color: #12121c;
+    background-color: #17102b;
     color: #c4b5fd;
-    border: 1px solid #3b287a;
-    height: 44px;
+    border: 1px solid #5b21b6;
+    height: 46px;
     border-radius: 8px;
     font-weight: 600;
     font-size: 13px;
     width: 100%;
     transition: all 0.2s ease;
+    margin-top: 10px;
 }
 
 .stButton > button:hover {
-    background-color: #1a152d;
+    background-color: #2e1065;
     color: #ffffff;
     border-color: #7c3aed;
 }
 
-/* Sección de Resultados */
-.section-title {
-    font-size: 12px;
+.stack-title {
+    font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    color: #71717a;
-    margin: 40px 0 20px 0;
+    color: #52525b;
+    margin-bottom: 16px;
     font-weight: 600;
 }
 
-/* Footer Minimal */
 .minimal-footer {
     border-top: 1px solid #141419;
-    color: #52525b;
+    color: #3f3f46;
     text-align: center;
     font-size: 11px;
     padding-top: 24px;
-    margin-top: 50px;
+    margin-top: 60px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -321,7 +324,7 @@ def buscar_combinaciones(objetivo, tolerancia):
                     gc, c = conductancias[k]
                     guardar(1 / (ga + gb + gc), (a, b, c), "Paralelo", formula_paralelo((a, b, c)))
 
-    # Mixto 1: R1 + (R2 || R3)
+    # Mixto 1
     for a in valores:
         rama = objetivo - a
         if rama <= 0:
@@ -337,7 +340,7 @@ def buscar_combinaciones(objetivo, tolerancia):
                     gc, c = conductancias[k]
                     guardar(a + 1 / (gb + gc), (a, b, c), "Mixto", f"{fmt(a)} + ({fmt(b)} || {fmt(c)})")
 
-    # Mixto 2: R1 || (R2 + R3)
+    # Mixto 2
     for ga, a in conductancias:
         restante_g = objetivo_g - ga
         if restante_g <= 0:
@@ -361,48 +364,47 @@ def buscar_combinaciones(objetivo, tolerancia):
 
 
 # ==========================================
-# INTERFAZ PRINCIPAL
+# INTERFAZ (DISEÑO VERTICAL EN CASCADA)
 # ==========================================
 
 st.markdown("""
-<div class="minimal-header">
-    <div class="minimal-title">Calculadora de resistores</div>
-    <div class="minimal-subtitle">Calculadora analítica de arreglos de resistencias</div>
+<div class="hero-box">
+    <div class="hero-title">OhmStack</div>
+    <div class="hero-subtitle">Optimizador de arreglos resistivos</div>
 </div>
 """, unsafe_allow_html=True)
 
-# Controles de entrada compactos
-col1, col2, col3 = st.columns([1, 1, 1.2])
-
-with col1:
+# Panel de control vertical unificado
+with st.container():
+    st.markdown('<div class="control-panel">', unsafe_allow_html=True)
+    
     objetivo = st.number_input(
-        "Valor deseado (Ω)",
+        "Valor de resistencia deseado (Ω)",
         min_value=0.001,
         value=430.0,
         step=1.0
     )
 
-with col2:
     tolerancia = st.selectbox(
-        "Tolerancia",
+        "Tolerancia comercial",
         [10, 1],
         format_func=lambda x: f"Serie E{12 if x==10 else 96} ({x}%)"
     )
 
-with col3:
-    st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
-    buscar = st.button("Buscar combinaciones", use_container_width=True)
+    buscar = st.button("Analizar combinaciones", use_container_width=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # ==========================================
-# RESULTADOS
+# GESTIÓN DE ESTADO Y RESULTADOS
 # ==========================================
 
 if "resultados" not in st.session_state:
     st.session_state.resultados = None
 
 if buscar:
-    with st.spinner("Procesando combinaciones..."):
+    with st.spinner("Procesando matriz de resistencias..."):
         st.session_state.resultados = buscar_combinaciones(objetivo, tolerancia)
         st.session_state.objetivo = objetivo
         st.session_state.tolerancia = tolerancia
@@ -411,13 +413,13 @@ if st.session_state.resultados is not None:
     resultados = st.session_state.resultados
     serie_nombre = "E12" if st.session_state.tolerancia == 10 else "E96"
 
-    st.markdown(f'<div class="section-title">Mejores alternativas óptimas (Serie {serie_nombre})</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="stack-title">Resultados óptimos · Serie {serie_nombre}</div>', unsafe_allow_html=True)
 
     if not resultados:
-        st.warning("No se encontraron combinaciones.")
+        st.warning("No se encontraron combinaciones para este valor.")
     else:
         for i, resultado in enumerate(resultados):
-            etiqueta_badge = '<div class="badge-optimo">ÓPTIMO</div>' if i == 0 else f'<div class="badge-num">0{i+1}</div>'
+            etiqueta_badge = '<div class="badge-optimo">MEJOR OPCIÓN</div>' if i == 0 else f'<div class="badge-num">OPCIÓN 0{i+1}</div>'
             resistencias_html = "".join(
                 dibujar_resistencia(r)
                 for r in resultado["resistencias"]
@@ -452,17 +454,17 @@ if st.session_state.resultados is not None:
                     * {{ box-sizing: border-box; }}
                     body {{
                         margin: 0;
-                        padding: 4px 0;
+                        padding: 6px 0;
                         font-family: 'Inter', sans-serif;
                         background: transparent;
                         color: #f1f5f9;
                     }}
 
                     .result-card {{
-                        background: #09090e;
+                        background: #07070a;
                         border: 1px solid #1c1c2b;
                         border-radius: 12px;
-                        padding: 16px 20px;
+                        padding: 18px 20px;
                         width: 100%;
                         position: relative;
                         box-shadow: 0 4px 20px rgba(0,0,0,0.4);
@@ -470,14 +472,14 @@ if st.session_state.resultados is not None:
                     }}
 
                     .result-card:hover {{
-                        border-color: #5b21b6;
+                        border-color: #7c3aed;
                     }}
 
                     .card-header-row {{
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
-                        margin-bottom: 10px;
+                        margin-bottom: 12px;
                     }}
 
                     .meta-info {{
@@ -490,19 +492,19 @@ if st.session_state.resultados is not None:
                         background: #2e1065;
                         color: #c4b5fd;
                         border: 1px solid #7c3aed;
-                        font-size: 10px;
+                        font-size: 9px;
                         font-weight: 700;
-                        padding: 2px 8px;
+                        padding: 3px 8px;
                         border-radius: 4px;
                         letter-spacing: 0.5px;
                     }}
 
                     .badge-num {{
-                        background: #14141f;
+                        background: #12121a;
                         color: #71717a;
-                        font-size: 10px;
+                        font-size: 9px;
                         font-weight: 700;
-                        padding: 2px 8px;
+                        padding: 3px 8px;
                         border-radius: 4px;
                     }}
 
@@ -537,7 +539,7 @@ if st.session_state.resultados is not None:
                         justify-content: space-between;
                         align-items: center;
                         border-top: 1px solid #14141f;
-                        padding-top: 12px;
+                        padding-top: 14px;
                     }}
 
                     .resistors-container {{
@@ -547,10 +549,10 @@ if st.session_state.resultados is not None:
                     }}
 
                     .resistor-card {{
-                        background: #050508;
-                        border: 1px solid #181824;
+                        background: #030305;
+                        border: 1px solid #1a1a24;
                         border-radius: 6px;
-                        padding: 4px 8px;
+                        padding: 6px 8px;
                         width: 95px;
                         text-align: center;
                     }}
@@ -594,7 +596,7 @@ if st.session_state.resultados is not None:
                         font-family: 'JetBrains Mono', monospace;
                         font-size: 10px;
                         color: #a1a1aa;
-                        margin-top: 2px;
+                        margin-top: 3px;
                     }}
 
                     .equivalent-value {{
@@ -606,7 +608,7 @@ if st.session_state.resultados is not None:
                     }}
 
                     @media (max-width: 600px) {{
-                        .bottom-split {{ flex-direction: column; align-items: flex-start; gap: 10px; }}
+                        .bottom-split {{ flex-direction: column; align-items: flex-start; gap: 12px; }}
                         .equivalent-value {{ text-align: left; }}
                     }}
                 </style>
@@ -614,7 +616,7 @@ if st.session_state.resultados is not None:
                 <body>{tarjeta}</body>
                 </html>
                 """,
-                height=185,
+                height=195,
                 scrolling=False
             )
 
@@ -624,6 +626,6 @@ if st.session_state.resultados is not None:
 
 st.markdown("""
 <div class="minimal-footer">
-    Calculadora de Resistencias
+    OHMSTACK MINIMAL · VERTICAL STACK LAYOUT
 </div>
 """, unsafe_allow_html=True)
