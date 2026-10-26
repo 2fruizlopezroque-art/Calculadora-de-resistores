@@ -624,6 +624,6 @@ if st.session_state.resultados is not None:
 
 st.markdown("""
 <div class="minimal-footer">
-    OHMMATCHER MINIMAL · DARK & VIOLET INTERFACE
+    Calculadora de Resistencias
 </div>
 """, unsafe_allow_html=True)
